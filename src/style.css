@@ -47,6 +47,11 @@ body {
     position: relative; /* For absolute positioning of remove button */
 }
 
+/* Add min-height to member-list to make empty groups droppable */
+.member-list {
+    min-height: 50px; /* Adjust as needed */
+}
+
 /* Footer positioning */
 html, body {
     height: 100%;
@@ -174,4 +179,69 @@ main {
     display: flex;
     align-items: center;
     margin-left: 5px; /* Space between level text and buttons */
+}
+
+/* Styles for Predefined Users Section */
+#predefinedUsersSection .list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: -1px;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+#predefinedUsersSection .list-group-item:first-child {
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+}
+
+#predefinedUsersSection .list-group-item:last-child {
+    margin-bottom: 0;
+    border-bottom-right-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.person-name {
+    font-size: 0.85em; /* Smaller font size for names */
+}
+
+/* CSS Grid for predefined users list */
+#predefinedUsersList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Default to flexible columns */
+    gap: 10px; /* Space between grid items */
+    list-style: none;
+    padding: 0;
+}
+
+#predefinedUsersList .list-group-item {
+    margin-bottom: 0; /* Remove default list-group-item margin */
+    border-radius: 0.25rem; /* Apply border-radius to individual items */
+}
+
+/* Responsive adjustments for predefined users list */
+@media (min-width: 576px) { /* Small devices (landscape phones, 576px and up) */
+    #predefinedUsersList {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+@media (min-width: 768px) { /* Medium devices (tablets, 768px and up) */
+    #predefinedUsersList {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (min-width: 992px) { /* Large devices (desktops, 992px and up) */
+    #predefinedUsersList {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (min-width: 1200px) { /* Extra large devices (large desktops, 1200px and up) */
+    #predefinedUsersList {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
 }

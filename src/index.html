@@ -15,8 +15,8 @@
         <div class="card p-4 shadow-sm">
             <div class="row g-3 mb-3">
                 <div class="col-12 d-grid gap-2 d-md-block">
-                    <button id="openAddPersonModalBtn" class="btn btn-primary">Adicionar Pessoa</button>
-                    <button id="downloadTemplateBtn" class="btn btn-secondary">Baixar Template</button>
+                    <button id="openAddPersonModalBtn" class="btn btn-primary">Adicionar/Selecionar Pessoa</button>
+                    <button id="downloadTemplateBtn" class="btn btn-secondary">Baixar Template</n>
                 </div>
             </div>
 
@@ -28,6 +28,8 @@
             </div>
 
             <div id="groupsContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4"></div>
+
+            
         </div>
 
         <!-- Add Person Modal -->
@@ -39,17 +41,40 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="modalNameInput" class="form-label">Nome</label>
-                            <input type="text" class="form-control" id="modalNameInput" placeholder="Digite um nome">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="toggleNewPerson" checked>
+                            <label class="form-check-label" for="toggleNewPerson">Adicionar Nova Pessoa</label>
                         </div>
-                        <div class="mb-3">
-                            <label for="modalClassInput" class="form-label">Classe</label>
-                            <input type="text" class="form-control" id="modalClassInput" placeholder="Classe (obrigatório)">
+
+                        <div id="predefinedUserFields" class="mb-3" style="display: none;">
+                            
+                            <div class="mb-3">
+                                <label for="predefinedClassFilter" class="form-label">Filtrar por Classe:</label>
+                                <select class="form-select" id="predefinedClassFilter">
+                                    <option value="">-- Todas as Classes --</option>
+                                </select>
+                            </div>
+                            <label for="predefinedUserSelect" class="form-label">Selecione um usuário pré-definido:</label>
+                            <select class="form-select" id="predefinedUserSelect">
+                                <option value="">-- Selecione --</option>
+                            </select>
                         </div>
-                        <div class="mb-3">
-                            <label for="modalLevelInput" class="form-label">Nível</label>
-                            <input type="number" class="form-control" id="modalLevelInput" placeholder="Nível (obrigatório)" min="1" step="1" max="200">
+
+                        <div id="newPersonFields">
+                            <div class="mb-3">
+                                <label for="modalNameInput" class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="modalNameInput" placeholder="Digite um nome">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modalClassInput" class="form-label">Classe</label>
+                                <select class="form-select" id="modalClassInput">
+                                    <option value="">-- Selecione a Classe --</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="modalLevelInput" class="form-label">Nível</label>
+                                <input type="number" class="form-control" id="modalLevelInput" placeholder="Nível (obrigatório)" min="1" step="1" max="200">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

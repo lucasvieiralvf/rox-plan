@@ -1,15 +1,17 @@
 const openAddPersonModalBtn = document.getElementById('openAddPersonModalBtn');
 const addPersonModalBtn = document.getElementById('addPersonModalBtn');
 const modalNameInput = document.getElementById('modalNameInput');
-const modalClassInput = document.getElementById('modalClassInput');
+const modalClassInput = document.getElementById('modalClassInput'); // This is a select input for classes
 const modalLevelInput = document.getElementById('modalLevelInput');
+const predefinedUserSelect = document.getElementById('predefinedUserSelect');
+const toggleNewPerson = document.getElementById('toggleNewPerson');
+const newPersonFields = document.getElementById('newPersonFields');
+const predefinedUserFields = document.getElementById('predefinedUserFields');
+const predefinedClassFilter = document.getElementById('predefinedClassFilter');
 
 let targetGroupIndexForModal = -1; // -1 means add to the last group, otherwise specific group index
 const peopleList = document.getElementById('peopleList');
 const downloadXlsxBtn = document.getElementById('downloadXlsxBtn');
-
-
-
 
 const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
 const generateGroupsBtn = document.getElementById('generateGroupsBtn');
@@ -17,16 +19,6 @@ const groupsContainer = document.getElementById('groupsContainer');
 const currentGroupTitle = document.getElementById('currentGroupTitle');
 
 let allGroups = []; // Holds all groups, including the one currently being formed
-
-
-
-
-
-
-
-
-
-
 
 downloadTemplateBtn.addEventListener('click', () => {
     const numGroups = 16;
@@ -73,6 +65,7 @@ function renderCurrentGroupList() {
     lastGroup.forEach((person, index) => {
         const li = document.createElement('li');
         const nameSpan = document.createElement('span');
+        nameSpan.classList.add('person-name'); // Add class for styling
         nameSpan.textContent = `${person.name} (Classe: ${person.classe || 'N/A'}, Nível: ${person.level || 'N/A'})`;
         li.appendChild(nameSpan);
 
@@ -96,11 +89,7 @@ function renderCurrentGroupList() {
 }
 
 function updateGenerateGroupsButtonState() {
-    if (allGroups.some(group => group.length > 0)) { // Check if any group has members
-        generateGroupsBtn.disabled = false;
-    } else {
-        generateGroupsBtn.disabled = true;
-    }
+    generateGroupsBtn.disabled = false;
 }
 
 function getAllGroups() {
@@ -141,6 +130,7 @@ function renderGroups() {
             memberDetails.classList.add('member-details');
 
             const nameSpan = document.createElement('span');
+            nameSpan.classList.add('person-name'); // Add class for styling
             nameSpan.textContent = `Nome: ${member.name}`;
             memberDetails.appendChild(nameSpan);
 
@@ -218,85 +208,137 @@ function renderGroups() {
     });
 }
 
+// Function to toggle visibility of new person fields vs. predefined user fields
+function togglePersonFields() {
+    if (toggleNewPerson.checked) {
+        newPersonFields.style.display = 'block';
+        predefinedUserFields.style.display = 'none';
+        predefinedUserSelect.value = ''; // Clear selection when switching to new person
+        // predefinedClassFilter.value = ''; // Removed
+    } else {
+        newPersonFields.style.display = 'none';
+        predefinedUserFields.style.display = 'block';
+        // Clear new person fields when switching to predefined
+        modalNameInput.value = '';
+        modalClassInput.value = '';
+        modalLevelInput.value = '';
+    }
+}
+
+toggleNewPerson.addEventListener('change', togglePersonFields);
+
 openAddPersonModalBtn.addEventListener('click', () => {
     targetGroupIndexForModal = -1; // Reset to add to the last group
+    // Default to adding a new person when opening from the main button
+    toggleNewPerson.checked = true;
+    togglePersonFields(); // Apply initial visibility
+
     modalNameInput.value = '';
     modalClassInput.value = '';
     modalLevelInput.value = '';
+    predefinedUserSelect.value = ''; // Clear selection
+    // predefinedClassFilter.value = ''; // Removed
+    populatePredefinedUserSelect(predefinedClassFilter.value); // Populate dropdown with filter
+    populateModalClassInput(); // Populate modal class dropdown
+    populatePredefinedClassFilter(); // Populate predefined class filter
     const addPersonModal = new bootstrap.Modal(document.getElementById('addPersonModal'));
     addPersonModal.show();
 });
 
 addPersonModalBtn.addEventListener('click', () => {
-    const name = modalNameInput.value.trim();
-    const classe = modalClassInput.value.trim();
-    const level = modalLevelInput.value.trim();
+    let person = null;
 
-    if (!name || !classe || !level) {
-        alert('Por favor, preencha todos os campos (Nome, Classe, Nível).');
-        return;
-    }
+    if (toggleNewPerson.checked) {
+        // Add new user
+        const name = modalNameInput.value.trim();
+        const classe = modalClassInput.value.trim(); // Get value from text input
+        const level = modalLevelInput.value.trim();
 
-    const parsedLevel = parseInt(level);
-    if (isNaN(parsedLevel) || parsedLevel < 1) {
-        alert('O Nível deve ser um número inteiro positivo.');
-        return;
-    }
-
-    if (parsedLevel > 200) {
-        alert('O Nível não pode ser maior que 200.');
-        return;
-    }
-
-    const person = { name, classe, level: parsedLevel };
-
-    if (targetGroupIndexForModal === -1) {
-        // Add to the last group or create a new one
-        let targetGroup;
-        if (allGroups.length === 0 || allGroups[allGroups.length - 1].length === 5) {
-            targetGroup = [];
-            allGroups.push(targetGroup);
-        } else {
-            targetGroup = allGroups[allGroups.length - 1];
+        if (!name || !classe || !level) {
+            alert('Por favor, preencha todos os campos (Nome, Classe, Nível).');
+            return;
         }
-        targetGroup.push(person);
+
+        const parsedLevel = parseInt(level);
+        if (isNaN(parsedLevel) || parsedLevel < 1) {
+            alert('O Nível deve ser um número inteiro positivo.');
+            return;
+        }
+
+        if (parsedLevel > 200) {
+            alert('O Nível não pode ser maior que 200.');
+            return;
+        }
+        person = { name, classe, level: parsedLevel };
     } else {
-        // Add to a specific group
-        allGroups[targetGroupIndexForModal].push(person);
+        // Add predefined user
+        const selectedPredefinedUser = predefinedUserSelect.value;
+        if (!selectedPredefinedUser) {
+            alert('Por favor, selecione um usuário pré-definido.');
+            return;
+        }
+        person = JSON.parse(selectedPredefinedUser);
     }
 
-    renderCurrentGroupList();
-    renderGroups();
+    if (person) {
+        if (targetGroupIndexForModal === -1) {
+            // Add to the last group or create a new one
+            let targetGroup;
+            if (allGroups.length === 0 || allGroups[allGroups.length - 1].length === 5) {
+                targetGroup = [];
+                allGroups.push(targetGroup);
+            } else {
+                targetGroup = allGroups[allGroups.length - 1];
+            }
+            targetGroup.push(person);
+        } else {
+            // Add to a specific group
+            allGroups[targetGroupIndexForModal].push(person);
+        }
 
-    const addPersonModal = bootstrap.Modal.getInstance(document.getElementById('addPersonModal'));
-    addPersonModal.hide();
+        renderCurrentGroupList();
+        renderGroups();
 
-    // Clear modal inputs after successful addition
-    modalNameInput.value = '';
-    modalClassInput.value = '';
-    modalLevelInput.value = '';
+        const addPersonModal = bootstrap.Modal.getInstance(document.getElementById('addPerson'));
+        addPersonModal.hide();
+
+        // Clear modal inputs after successful addition
+        modalNameInput.value = '';
+        modalClassInput.value = '';
+        modalLevelInput.value = '';
+        predefinedUserSelect.value = '';
+        // predefinedClassFilter.value = ''; // Removed
+    }
 });
 
 // Function to open the modal for adding a person to a specific group
 function addPersonToSpecificGroup(targetGroupIndex) {
     targetGroupIndexForModal = targetGroupIndex;
+    // Default to selecting a predefined user when opening from a group's '+' button
+    toggleNewPerson.checked = false;
+    togglePersonFields(); // Apply initial visibility
+
     modalNameInput.value = '';
     modalClassInput.value = '';
     modalLevelInput.value = '';
+    predefinedUserSelect.value = ''; // Clear selection
+    // predefinedClassFilter.value = ''; // Removed
+    populatePredefinedUserSelect(predefinedClassFilter.value); // Populate dropdown with filter
+    populateModalClassInput(); // Populate modal class dropdown
+    populatePredefinedClassFilter(); // Populate predefined class filter
     const addPersonModal = new bootstrap.Modal(document.getElementById('addPersonModal'));
     addPersonModal.show();
 }
-
-
-
-
 
 let draggedItem = null;
 
 function dragStart(e) {
     draggedItem = e.target;
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', null); // Required for Firefox
+    e.dataTransfer.setData('text/plain', JSON.stringify({
+        groupIndex: draggedItem.dataset.groupIndex,
+        memberIndex: draggedItem.dataset.memberIndex
+    }));
     setTimeout(() => {
         draggedItem.classList.add('dragging');
     }, 0);
@@ -319,8 +361,9 @@ function drop(e) {
     e.target.classList.remove('drag-over');
 
     if (draggedItem) {
-        const fromGroupIndex = parseInt(draggedItem.dataset.groupIndex);
-        const fromMemberIndex = parseInt(draggedItem.dataset.memberIndex);
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const fromGroupIndex = parseInt(data.groupIndex);
+        const fromMemberIndex = parseInt(data.memberIndex);
 
         let toGroupIndex;
         let toMemberIndex = -1; // Default to end of list
@@ -339,6 +382,15 @@ function drop(e) {
         const sourceGroup = allGroups[fromGroupIndex];
         const targetGroup = allGroups[toGroupIndex];
 
+        // Prevent dropping on itself or if target group is full
+        if (fromGroupIndex === toGroupIndex && fromMemberIndex === toMemberIndex) {
+            return;
+        }
+        if (targetGroup.length >= 5 && fromGroupIndex !== toGroupIndex) { // Assuming max 5 members per group
+            alert("Este grupo já está cheio!");
+            return;
+        }
+
         // Remove from source group
         const [movedMember] = sourceGroup.splice(fromMemberIndex, 1);
 
@@ -349,10 +401,7 @@ function drop(e) {
             targetGroup.splice(toMemberIndex, 0, movedMember);
         }
 
-        // If source group becomes empty and it's not the only group, remove it
-        if (sourceGroup.length === 0 && allGroups.length > 1) {
-            allGroups.splice(fromGroupIndex, 1);
-        }
+        
 
         renderCurrentGroupList(); // Re-render the current group display
         renderGroups(); // Re-render all groups to reflect changes
@@ -366,7 +415,6 @@ generateGroupsBtn.addEventListener('click', () => {
     renderCurrentGroupList(); // Re-render the current group display
     renderGroups(); // Re-render all groups to reflect changes
 });
-
 
 
 downloadXlsxBtn.addEventListener('click', () => {
@@ -426,6 +474,165 @@ function downloadFile(filename, content) {
     document.body.removeChild(element);
 }
 
+// Predefined Users Logic
+const classes = [
+    "Sacerdote", "Paladino", "Assassino", "Ferreiro", "Alquimista",
+    "Sniper", "Sabio", "Bruxo", "Cavaleiro", "Stalker",
+    "Clown", "Odalisca", "Champion"
+];
+classes.sort(); // Sort classes alphabetically immediately
+
+const specificKnightNames = ["Daizinha", "Hodeki", "Fujika", "Yelrad", "magiclord", "GeForceSX", "Murdox", "Xuxuzera", "xHinata", "Spectro"];
+const specificPaladinNames = ["Dokubok", "Sfitzer", "Raipan", "RGKhinary", "Alleff"];
+const specificPriestNames = ["NoSilence", "Anarchy", "Sylf", "Padre Quevedo", "psytech", "Mabson", "Fl4meheal", "TATALUGA", "Save you", "Halissa", "maik3", "xSimba", "Sameru", "Melocks"];
+
+const specificStalkerNames = ["Morenga"];
+const specificSniperNames = ["OniKUri", "Cai0", "Xacalzin", "NickxD", "Tynt", "invicte", "VPDA", "reivindic", "Tawaata", "DeusDragon", "Mushira", "Azrk", "Zxephyr", "GibaPerez", "lDantecry"];
+
+const specificClownNames = ["Akdi", "ipixuna"];
+const specificBlacksmithNames = ["Kaotic", "Hideroshi"];
+const specificAlchemistNames = ["Leas", "Higush", "BenitoBigode", "Weidman", "MorganaBr", "Belllk"];
+const specificOdalisqueNames = ["KaytGypsy"];
+
+const predefinedUsers = [];
+const level = 60;
+
+// Add specific Knight names first
+specificKnightNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Cavaleiro",
+        level: level
+    });
+});
+
+// Add specific Paladin names
+specificPaladinNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Paladino",
+        level: level
+    });
+});
+
+// Add specific Priest names
+specificPriestNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Sacerdote",
+        level: level
+    });
+});
+
+// Add specific Stalker names
+specificStalkerNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Stalker",
+        level: level
+    });
+});
+
+// Add specific Sniper names
+specificSniperNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Sniper",
+        level: level
+    });
+});
+
+// Add specific Clown names
+specificClownNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Clown",
+        level: level
+    });
+});
+
+// Add specific Blacksmith names
+specificBlacksmithNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Ferreiro",
+        level: level
+    });
+});
+
+// Add specific Alchemist names
+specificAlchemistNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Alquimista",
+        level: level
+    });
+});
+
+// Add specific Odalisque names
+specificOdalisqueNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Odalisca",
+        level: level
+    });
+});
+
+let currentPage = 1;
+const itemsPerPage = 25;
+
+function populatePredefinedUserSelect(classFilter = '') {
+    predefinedUserSelect.innerHTML = '<option value="">-- Selecione --</option>';
+
+    let filteredUsers = predefinedUsers;
+
+    if (classFilter) {
+        filteredUsers = predefinedUsers.filter(user => user.classe === classFilter);
+    }
+
+    // Sort filtered users by class, then by name
+    filteredUsers.sort((a, b) => {
+        if (a.classe < b.classe) return -1;
+        if (a.classe > b.classe) return 1;
+        return a.name.localeCompare(b.name);
+    });
+
+    filteredUsers.forEach(user => {
+        const option = document.createElement('option');
+        option.value = JSON.stringify(user);
+        option.textContent = `${user.name} (Classe: ${user.classe}, Nível: ${user.level})`;
+        predefinedUserSelect.appendChild(option);
+    });
+}
+
+function populateModalClassInput() {
+    modalClassInput.innerHTML = '<option value="">-- Selecione a Classe --</option>';
+    classes.forEach(cls => {
+        const option = document.createElement('option');
+        option.value = cls;
+        option.textContent = cls;
+        modalClassInput.appendChild(option);
+    });
+}
+
+function populatePredefinedClassFilter() {
+    predefinedClassFilter.innerHTML = '<option value="">-- Todas as Classes --</option>';
+    classes.forEach(cls => {
+        const option = document.createElement('option');
+        option.value = cls;
+        option.textContent = cls;
+        predefinedClassFilter.appendChild(option);
+    });
+}
+
+predefinedClassFilter.addEventListener('change', () => {
+    const selectedClass = predefinedClassFilter.value;
+    populatePredefinedUserSelect(selectedClass);
+});
+
 // Initial render on page load
 renderCurrentGroupList();
 renderGroups();
+populatePredefinedUserSelect(); // Populate dropdown on load
+populateModalClassInput(); // Populate modal class dropdown on load
+populatePredefinedClassFilter(); // Populate predefined class filter on load
