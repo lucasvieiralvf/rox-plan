@@ -1,0 +1,177 @@
+body {
+    font-family: sans-serif;
+    background-color: #f8f9fa; /* Light background for a fresh look */
+}
+
+/* Custom styles for elements not fully covered by Bootstrap or for specific overrides */
+
+/* Adjustments for the people list */
+#peopleList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5em 0;
+    border-bottom: 1px solid #eee;
+}
+
+#peopleList li:last-child {
+    border-bottom: none;
+}
+
+/* Group card styling */
+.group-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    background-color: #fff;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.group-card h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.group-card ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.group-card li {
+    display: flex; /* Use flexbox for list items */
+    align-items: center; /* Vertically align items */
+    padding: 0.25rem 0;
+    position: relative; /* For absolute positioning of remove button */
+}
+
+/* Footer positioning */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Styles for drag and drop feedback */
+.dragging {
+    opacity: 0.5;
+}
+
+.drag-over {
+    border: 2px dashed #007bff;
+}
+
+/* Styles for the remove button (red 'x') */
+.remove-member-btn {
+    background-color: #dc3545; /* Red */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+    position: absolute; /* Position absolutely within the li */
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.remove-member-btn:hover {
+    background-color: #c82333;
+}
+
+/* Styles for the add member button (green '+') */
+.add-member-to-group-btn {
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 1.2rem;
+    display: block; /* Occupy full width */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.add-member-to-group-btn:hover {
+    background-color: #218838;
+}
+
+.level-btn {
+    background-color: #007bff; /* Blue */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 0 2px;
+    padding: 0;
+    font-size: 0.8rem;
+}
+
+.level-btn:hover {
+    background-color: #0056b3;
+}
+
+.level-decrement-btn {
+    background-color: #dc3545; /* Red */
+}
+
+.level-decrement-btn:hover {
+    background-color: #c82333;
+}
+
+.level-increment-btn {
+    background-color: #28a745; /* Green */
+}
+
+.level-increment-btn:hover {
+    background-color: #218838;
+}
+
+.member-details {
+    display: flex;
+    flex-grow: 1; /* Allow details to take up available space */
+    justify-content: space-between; /* Distribute name, class, level */
+    align-items: center;
+    margin-right: 40px; /* Make space for the remove button */
+}
+
+.member-details span {
+    margin-right: 10px; /* Space between name, class, level */
+}
+
+.level-container {
+    display: flex;
+    align-items: center;
+}
+
+.level-controls {
+    display: flex;
+    align-items: center;
+    margin-left: 5px; /* Space between level text and buttons */
+}
