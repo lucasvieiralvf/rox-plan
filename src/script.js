@@ -14,6 +14,7 @@ const peopleList = document.getElementById('peopleList');
 const downloadXlsxBtn = document.getElementById('downloadXlsxBtn');
 
 const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
+const generateKVMGroupsBtn = document.getElementById('generateKVMGroupsBtn');
 const generateGroupsBtn = document.getElementById('generateGroupsBtn');
 const groupsContainer = document.getElementById('groupsContainer');
 const currentGroupTitle = document.getElementById('currentGroupTitle');
@@ -119,6 +120,12 @@ function renderGroups() {
         memberList.addEventListener('drop', drop);
         memberList.addEventListener('dragleave', dragLeave);
 
+        // Add header row
+        const headerLi = document.createElement('li');
+        headerLi.classList.add('list-group-item', 'list-group-item-dark', 'd-flex', 'justify-content-between', 'align-items-center');
+        headerLi.innerHTML = '<span class="flex-grow-1">Nome</span><span class="flex-grow-1">Classe</span><span>Nível</span>';
+        memberList.appendChild(headerLi);
+
         group.forEach((member, memberIndex) => {
             const li = document.createElement('li');
             li.draggable = true;
@@ -127,25 +134,29 @@ function renderGroups() {
             li.addEventListener('dragstart', dragStart);
 
             const memberDetails = document.createElement('div');
-            memberDetails.classList.add('member-details');
+            memberDetails.classList.add('member-details', 'd-flex', 'justify-content-between', 'align-items-center'); // Using Bootstrap flex classes
 
+            // Name
             const nameSpan = document.createElement('span');
-            nameSpan.classList.add('person-name'); // Add class for styling
-            nameSpan.textContent = `Nome: ${member.name}`;
+            nameSpan.classList.add('person-name', 'flex-grow-1'); // flex-grow-1 to take available space
+            nameSpan.textContent = member.name; // Removed "Nome: "
             memberDetails.appendChild(nameSpan);
 
+            // Class
             const classSpan = document.createElement('span');
-            classSpan.textContent = `Classe: ${member.classe || 'N/A'}`;
+            classSpan.classList.add('flex-grow-1');
+            classSpan.textContent = member.classe || 'N/A'; // Removed "Classe: "
             memberDetails.appendChild(classSpan);
 
+            // Level
             const levelContainer = document.createElement('span');
-            levelContainer.classList.add('level-container');
+            levelContainer.classList.add('level-container', 'd-flex', 'align-items-center'); // Flex for level and controls
             const levelText = document.createElement('span');
-            levelText.textContent = `Nível: ${member.level || 'N/A'}`;
+            levelText.textContent = member.level || 'N/A'; // Removed "Nível: "
             levelContainer.appendChild(levelText);
 
             const levelControlSpan = document.createElement('span');
-            levelControlSpan.classList.add('level-controls');
+            levelControlSpan.classList.add('level-controls', 'ms-2'); // ms-2 for margin-left
 
             const decrementBtn = document.createElement('button');
             decrementBtn.textContent = '-';
@@ -299,7 +310,7 @@ addPersonModalBtn.addEventListener('click', () => {
         renderCurrentGroupList();
         renderGroups();
 
-        const addPersonModal = bootstrap.Modal.getInstance(document.getElementById('addPerson'));
+        const addPersonModal = bootstrap.Modal.getInstance(document.getElementById('addPersonModal'));
         addPersonModal.hide();
 
         // Clear modal inputs after successful addition
@@ -416,6 +427,60 @@ generateGroupsBtn.addEventListener('click', () => {
     renderGroups(); // Re-render all groups to reflect changes
 });
 
+generateKVMGroupsBtn.addEventListener('click', () => {
+    generateKVMGroups();
+});
+
+function generateKVMGroups() {
+    allGroups = []; // Clear existing groups
+
+    const kvmRawGroups = [
+        ["TATALUGA", "Ero", "Daizinha", "Fall", "VPDA"],
+        ["Dicolino", "rika", "Tawaata", "NoSilence", "Fujika"],
+        ["psytech", "Niyumi", "Kaotic", "Xuxuzera", "NoTarget"],
+        ["Sylf", "Akdi", "Sfitzer", "Zxephyr", "Galbatorys"],
+        ["Padre Quevedo", "RGKhinary", "OniKUri", "KaytGypsy", "kauemsilva"],
+        ["Mabson", "Darwin Zach", "Weidman", "lHCl", "Raipan"],
+        ["Hodeki", "Anarchy", "MorganaBr", "Freeza", "Azrk"],
+        ["reivindic", "Melocks", "DeusDragon", "Murdox", "KyrosX"],
+        ["xHinata", "NickxD", "invicte", "GibaPerez", "Halissa"],
+        ["maik3", "BenitoBigode", "Belllk", "Lukastiel", "ipixuna"],
+        ["Save you", "Alleff", "Morenga", "Higush", "Ehgirl"],
+        ["Xacalzin", "magiclord", "Sameru", "Leas", "Baltazar"],
+        ["Fl4meheal", "Cai0", "Yelrad", "Tynt", "Dokubok"]
+    ];
+
+    const defaultLevel = 60; // Already defined as 'level' in script.js
+    const defaultClasse = "Desconhecida"; // Default class for unmatched users
+
+    kvmRawGroups.forEach(rawGroup => {
+        const newGroup = [];
+        rawGroup.forEach(memberName => {
+            // Find the member in predefinedUsers
+            const foundUser = predefinedUsers.find(user => user.name === memberName);
+
+            if (foundUser) {
+                newGroup.push({
+                    name: foundUser.name,
+                    classe: foundUser.classe,
+                    level: foundUser.level
+                });
+            } else {
+                // If not found, use default values
+                newGroup.push({
+                    name: memberName,
+                    classe: defaultClasse,
+                    level: defaultLevel
+                });
+            }
+        });
+        allGroups.push(newGroup);
+    });
+
+    renderCurrentGroupList();
+    renderGroups();
+}
+
 
 downloadXlsxBtn.addEventListener('click', () => {
     const groupsToDownload = getAllGroups();
@@ -486,6 +551,10 @@ const specificKnightNames = ["Daizinha", "Hodeki", "Fujika", "Yelrad", "magiclor
 const specificPaladinNames = ["Dokubok", "Sfitzer", "Raipan", "RGKhinary", "Alleff"];
 const specificPriestNames = ["NoSilence", "Anarchy", "Sylf", "Padre Quevedo", "psytech", "Mabson", "Fl4meheal", "TATALUGA", "Save you", "Halissa", "maik3", "xSimba", "Sameru", "Melocks"];
 
+const specificSageNames = ["Lohrwin", "rika"];
+const specificAssassinNames = ["NoTarget", "Baltazar", "Darwin Zach", "Ero", "KyrosX", "EmOR", "Lukastiel", "Surfera"];
+const specificWizardNames = ["Freeza", "Galbatorys", "Dicolino", "kauemsilva", "lHCl", "Ehgirl", "Fall", "Niyumi"];
+
 const specificStalkerNames = ["Morenga"];
 const specificSniperNames = ["OniKUri", "Cai0", "Xacalzin", "NickxD", "Tynt", "invicte", "VPDA", "reivindic", "Tawaata", "DeusDragon", "Mushira", "Azrk", "Zxephyr", "GibaPerez", "lDantecry"];
 
@@ -524,7 +593,34 @@ specificPriestNames.forEach(name => {
     });
 });
 
-// Add specific Stalker names
+// Add specific Assassin names
+specificAssassinNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Assassino",
+        level: level
+    });
+});
+
+// Add specific Sage names
+specificSageNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Sabio",
+        level: level
+    });
+});
+
+// Add specific Wizard names
+specificWizardNames.forEach(name => {
+    predefinedUsers.push({
+        name: name,
+        classe: "Bruxo",
+        level: level
+    });
+});
+
+
 specificStalkerNames.forEach(name => {
     predefinedUsers.push({
         name: name,
